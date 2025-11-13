@@ -354,10 +354,26 @@ class ProtobufConverter {
   }
 
   static String _resourceKey(Resource resource) {
-    return resource.attributes.map((a) => '${a.key}=${a.value}').join(',');
+    final sorted = resource.attributes.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    return sorted.map((a) => '${a.key}=${_attributeValueToString(a.value)}').join(',');
   }
 
   static String _scopeKey(InstrumentationScope scope) {
     return '${scope.name}:${scope.version ?? ''}';
+  }
+
+  static String _attributeValueToString(AttributeValue value) {
+    if (value.stringValue != null) return 's:${value.stringValue}';
+    if (value.intValue != null) return 'i:${value.intValue}';
+    if (value.doubleValue != null) return 'd:${value.doubleValue}';
+    if (value.boolValue != null) return 'b:${value.boolValue}';
+    if (value.arrayValue != null) {
+      return 'a:[${value.arrayValue!.map(_attributeValueToString).join(',')}]';
+    }
+    if (value.kvlistValue != null) {
+      return 'kv:{${value.kvlistValue!.entries.map((e) => '${e.key}=${_attributeValueToString(e.value)}').join(',')}}';
+    }
+    return '';
   }
 }
