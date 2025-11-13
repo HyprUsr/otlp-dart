@@ -6,6 +6,7 @@ abstract class MeterProvider {
   Meter getMeter(
     String name, {
     String? version,
+    String? schemaUrl,
   });
 
   /// Shuts down the meter provider and all associated components.
