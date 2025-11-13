@@ -45,6 +45,13 @@ class RecordingSpan implements Span {
   @override
   bool get isRecording => !_ended;
 
+  /// Getters for internal state (used by exporters)
+  int? get endTimeUnixNano => _endTimeUnixNano;
+  List<Attribute> get attributes => _attributes;
+  List<SpanEvent> get events => _events;
+  List<SpanLink> get links => _links;
+  SpanStatus get status => _status;
+
   @override
   void setAttribute(String key, AttributeValue value) {
     if (!_ended) {

@@ -6,16 +6,16 @@ import '../../sdk/resource/resource.dart';
 import 'log_processor.dart';
 
 /// Implementation of the Logger interface.
-class LoggerImpl implements Logger {
-  final InstrumentationScope scope;
-  final Resource resource;
-  final LogRecordProcessor processor;
-
+class LoggerImpl extends Logger {
   LoggerImpl({
     required this.scope,
     required this.resource,
     required this.processor,
   });
+
+  final InstrumentationScope scope;
+  final Resource resource;
+  final LogRecordProcessor processor;
 
   @override
   void log(

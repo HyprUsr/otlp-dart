@@ -22,3 +22,6 @@ export 'src/sdk/common/attribute.dart';
 export 'src/exporters/otlp_http_trace_exporter.dart';
 export 'src/exporters/otlp_http_metric_exporter.dart';
 export 'src/exporters/otlp_http_log_exporter.dart';
+
+export 'src/instrumentation/otlp_http_client.dart';
+export 'src/instrumentation/http_semantic_conventions.dart';
