@@ -28,7 +28,6 @@ class MeterProviderImpl implements MeterProvider {
         scope: InstrumentationScope(
           name: name,
           version: version,
-          schemaUrl: schemaUrl,
         ),
         resource: resource,
         reader: reader,

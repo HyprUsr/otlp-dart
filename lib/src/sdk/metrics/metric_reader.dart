@@ -7,7 +7,7 @@ import '../../exporters/otlp_http_metric_exporter.dart';
 abstract class MetricReader {
   Future<void> forceFlush();
   Future<void> shutdown();
-  void registerMetric(String key, MetricData metric);
+  void registerMetric(String key, MetricData Function() metricProducer);
   List<MetricData> collectMetrics();
 }
 
@@ -17,7 +17,7 @@ class PeriodicMetricReader implements MetricReader {
   final Resource resource;
   final InstrumentationScope scope;
   final Duration interval;
-  final Map<String, MetricData> _metrics = {};
+  final Map<String, MetricData Function()> _metricProducers = {};
   Timer? _timer;
   bool _shutdown = false;
 
@@ -39,13 +39,15 @@ class PeriodicMetricReader implements MetricReader {
   }
 
   @override
-  void registerMetric(String key, MetricData metric) {
-    _metrics[key] = metric;
+  void registerMetric(String key, MetricData Function() metricProducer) {
+    _metricProducers[key] = metricProducer;
   }
 
   @override
   List<MetricData> collectMetrics() {
-    return _metrics.values.toList();
+    // Collect all metrics - even those with no current data points
+    // This ensures metric streams remain consistent for DELTA temporality
+    return _metricProducers.values.map((producer) => producer()).toList();
   }
 
   Future<void> _export() async {

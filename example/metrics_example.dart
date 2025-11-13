@@ -18,16 +18,10 @@ void main() async {
     ],
   );
 
-  // Create OTLP exporter
-  // For local testing with .NET Aspire Dashboard, use:
-  // final exporter = OtlpHttpMetricExporter.aspire();
-  //
-  // For HTTP/1.1 endpoints:
-  final exporter = OtlpHttpMetricExporter(
-    endpoint: 'http://localhost:4318/v1/metrics',
-    headers: {
-      'x-custom-header': 'custom-value',
-    },
+  // Create OTLP exporter for Aspire Dashboard
+  final exporter = OtlpHttpMetricExporter.aspire(
+    host: 'localhost',
+    port: 18889,
   );
 
   // Create metric reader with 10 second export interval

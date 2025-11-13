@@ -43,9 +43,7 @@ class SimpleSpanProcessor implements SpanProcessor {
 
   @override
   void onEnd(RecordingSpan span) {
-    if (!span.isRecording) {
-      exporter.export([span]);
-    }
+    exporter.export([span]);
   }
 
   @override
@@ -84,7 +82,7 @@ class BatchSpanProcessor implements SpanProcessor {
 
   @override
   void onEnd(RecordingSpan span) {
-    if (_shutdown || !span.isRecording) {
+    if (_shutdown) {
       return;
     }
 
