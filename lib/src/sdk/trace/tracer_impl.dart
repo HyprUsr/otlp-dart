@@ -46,6 +46,7 @@ class TracerImpl implements Tracer {
       kind: kind,
       scope: scope,
       resource: resource,
+      processor: processor,
       parentSpanId: parentContext?.spanId,
       startTime: startTime,
       links: links,
@@ -79,16 +80,10 @@ class TracerImpl implements Tracer {
 
     try {
       final result = fn(span);
-      if (span is RecordingSpan) {
-        processor.onEnd(span);
-      }
       span.end();
       return result;
     } catch (e, stackTrace) {
       span.recordException(e, stackTrace: stackTrace);
-      if (span is RecordingSpan) {
-        processor.onEnd(span);
-      }
       span.end();
       rethrow;
     }
@@ -113,16 +108,10 @@ class TracerImpl implements Tracer {
 
     try {
       final result = await fn(span);
-      if (span is RecordingSpan) {
-        processor.onEnd(span);
-      }
       span.end();
       return result;
     } catch (e, stackTrace) {
       span.recordException(e, stackTrace: stackTrace);
-      if (span is RecordingSpan) {
-        processor.onEnd(span);
-      }
       span.end();
       rethrow;
     }

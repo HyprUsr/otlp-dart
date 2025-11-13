@@ -10,8 +10,10 @@ class MeterImpl implements Meter {
   final Resource resource;
   final MetricReader reader;
   final Map<String, _CounterImpl> _counters = {};
+  final Map<String, _UpDownCounterImpl> _upDownCounters = {};
   final Map<String, _HistogramImpl> _histograms = {};
   final Map<String, _ObservableGaugeImpl> _observableGauges = {};
+  final Map<String, _ObservableCounterImpl> _observableCounters = {};
 
   MeterImpl({
     required this.scope,
@@ -36,9 +38,16 @@ class MeterImpl implements Meter {
   @override
   UpDownCounter createUpDownCounter(String name,
       {String? unit, String? description}) {
-    // For simplicity, treating UpDownCounter like Counter for now
-    return createCounter(name, unit: unit, description: description)
-        as UpDownCounter;
+    final key = '${scope.name}:$name';
+    return _upDownCounters.putIfAbsent(key, () {
+      final counter = _UpDownCounterImpl(
+        name: name,
+        unit: unit,
+        description: description,
+      );
+      _registerMetric(key, () => counter._metricData);
+      return counter;
+    });
   }
 
   @override
@@ -82,9 +91,17 @@ class MeterImpl implements Meter {
     String? unit,
     String? description,
   }) {
-    // For simplicity, converting to double and using gauge
-    return createObservableGauge(name, () => callback().toDouble(),
-        unit: unit, description: description) as ObservableCounter;
+    final key = '${scope.name}:$name';
+    return _observableCounters.putIfAbsent(key, () {
+      final counter = _ObservableCounterImpl(
+        name: name,
+        callback: callback,
+        unit: unit,
+        description: description,
+      );
+      _registerMetric(key, () => counter._metricData);
+      return counter;
+    });
   }
 
   void _registerMetric(String key, MetricData Function() metricProducer) {
@@ -97,12 +114,13 @@ class _CounterImpl implements Counter {
   final String? unit;
   final String? description;
   final Map<String, int> _valuesByAttributes = {};
+  int _startTimeUnixNano;
 
   _CounterImpl({
     required this.name,
     this.unit,
     this.description,
-  });
+  }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
 
   @override
   void add(int value, {Map<String, AttributeValue>? attributes}) {
@@ -153,13 +171,14 @@ class _CounterImpl implements Counter {
   MetricData get _metricData {
     final now = DateTime.now();
     final timeNanos = now.microsecondsSinceEpoch * 1000;
+    final startTime = _startTimeUnixNano;
 
     // For DELTA temporality, we need to collect and reset
     final dataPoints = _valuesByAttributes.entries.map((entry) {
       final attrs = _parseAttributeKey(entry.key);
       return DataPoint(
         value: entry.value.toDouble(),
-        startTimeUnixNano: timeNanos,
+        startTimeUnixNano: startTime,
         timeUnixNano: timeNanos,
         attributes: attrs.entries
             .map((e) => Attribute(e.key, e.value))
@@ -167,8 +186,9 @@ class _CounterImpl implements Counter {
       );
     }).toList();
 
-    // Reset for delta temporality
+    // Reset for delta temporality and update start time
     _valuesByAttributes.clear();
+    _startTimeUnixNano = timeNanos;
 
     return SumData(
       name: name,
@@ -180,17 +200,107 @@ class _CounterImpl implements Counter {
   }
 }
 
+class _UpDownCounterImpl implements UpDownCounter {
+  final String name;
+  final String? unit;
+  final String? description;
+  final Map<String, int> _valuesByAttributes = {};
+  int _startTimeUnixNano;
+
+  _UpDownCounterImpl({
+    required this.name,
+    this.unit,
+    this.description,
+  }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+
+  @override
+  void add(int value, {Map<String, AttributeValue>? attributes}) {
+    // UpDownCounter allows negative values
+    final key = _attributeKey(attributes ?? {});
+    _valuesByAttributes[key] = (_valuesByAttributes[key] ?? 0) + value;
+  }
+
+  String _attributeKey(Map<String, AttributeValue> attributes) {
+    final sorted = attributes.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    return sorted.map((e) => '${e.key}=${_attributeValueToString(e.value)}').join(',');
+  }
+
+  String _attributeValueToString(AttributeValue value) {
+    if (value.stringValue != null) return 's:${value.stringValue}';
+    if (value.intValue != null) return 'i:${value.intValue}';
+    if (value.doubleValue != null) return 'd:${value.doubleValue}';
+    if (value.boolValue != null) return 'b:${value.boolValue}';
+    return '';
+  }
+
+  Map<String, AttributeValue> _parseAttributeKey(String key) {
+    if (key.isEmpty) return {};
+    final result = <String, AttributeValue>{};
+    for (final pair in key.split(',')) {
+      final eqIndex = pair.indexOf('=');
+      if (eqIndex > 0) {
+        final attrKey = pair.substring(0, eqIndex);
+        final attrValue = pair.substring(eqIndex + 1);
+
+        if (attrValue.startsWith('s:')) {
+          result[attrKey] = AttributeValue.string(attrValue.substring(2));
+        } else if (attrValue.startsWith('i:')) {
+          result[attrKey] = AttributeValue.int(int.parse(attrValue.substring(2)));
+        } else if (attrValue.startsWith('d:')) {
+          result[attrKey] = AttributeValue.double(double.parse(attrValue.substring(2)));
+        } else if (attrValue.startsWith('b:')) {
+          result[attrKey] = AttributeValue.bool(attrValue.substring(2) == 'true');
+        }
+      }
+    }
+    return result;
+  }
+
+  MetricData get _metricData {
+    final now = DateTime.now();
+    final timeNanos = now.microsecondsSinceEpoch * 1000;
+    final startTime = _startTimeUnixNano;
+
+    // For DELTA temporality, we need to collect and reset
+    final dataPoints = _valuesByAttributes.entries.map((entry) {
+      final attrs = _parseAttributeKey(entry.key);
+      return DataPoint(
+        value: entry.value.toDouble(),
+        startTimeUnixNano: startTime,
+        timeUnixNano: timeNanos,
+        attributes: attrs.entries
+            .map((e) => Attribute(e.key, e.value))
+            .toList(),
+      );
+    }).toList();
+
+    // Reset for delta temporality and update start time
+    _valuesByAttributes.clear();
+    _startTimeUnixNano = timeNanos;
+
+    return SumData(
+      name: name,
+      description: description,
+      unit: unit,
+      dataPoints: dataPoints,
+      isMonotonic: false, // UpDownCounter is not monotonic
+    );
+  }
+}
+
 class _HistogramImpl implements Histogram {
   final String name;
   final String? unit;
   final String? description;
   final Map<String, List<double>> _valuesByAttributes = {};
+  int _startTimeUnixNano;
 
   _HistogramImpl({
     required this.name,
     this.unit,
     this.description,
-  });
+  }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
 
   @override
   void record(double value, {Map<String, AttributeValue>? attributes}) {
@@ -238,6 +348,7 @@ class _HistogramImpl implements Histogram {
   MetricData get _metricData {
     final now = DateTime.now();
     final timeNanos = now.microsecondsSinceEpoch * 1000;
+    final startTime = _startTimeUnixNano;
 
     final dataPoints = <HistogramDataPoint>[];
 
@@ -272,7 +383,7 @@ class _HistogramImpl implements Histogram {
           sum: sum,
           min: min,
           max: max,
-          startTimeUnixNano: timeNanos,
+          startTimeUnixNano: startTime,
           timeUnixNano: timeNanos,
           bucketCounts: buckets,
           explicitBounds: bounds,
@@ -283,8 +394,9 @@ class _HistogramImpl implements Histogram {
       );
     }
 
-    // Reset for delta temporality
+    // Reset for delta temporality and update start time
     _valuesByAttributes.clear();
+    _startTimeUnixNano = timeNanos;
 
     return HistogramData(
       name: name,
@@ -324,6 +436,45 @@ class _ObservableGaugeImpl implements ObservableGauge {
           attributes: [],
         ),
       ],
+    );
+  }
+}
+
+class _ObservableCounterImpl implements ObservableCounter {
+  final String name;
+  final int Function() callback;
+  final String? unit;
+  final String? description;
+  int _startTimeUnixNano;
+
+  _ObservableCounterImpl({
+    required this.name,
+    required this.callback,
+    this.unit,
+    this.description,
+  }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+
+  MetricData get _metricData {
+    final now = DateTime.now();
+    final timeNanos = now.microsecondsSinceEpoch * 1000;
+    final startTime = _startTimeUnixNano;
+
+    // Update start time for next collection
+    _startTimeUnixNano = timeNanos;
+
+    return SumData(
+      name: name,
+      description: description,
+      unit: unit,
+      dataPoints: [
+        DataPoint(
+          value: callback().toDouble(),
+          startTimeUnixNano: startTime,
+          timeUnixNano: timeNanos,
+          attributes: [],
+        ),
+      ],
+      isMonotonic: true, // ObservableCounter is monotonic
     );
   }
 }

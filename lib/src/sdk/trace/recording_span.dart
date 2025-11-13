@@ -3,6 +3,7 @@ import '../../api/trace/span_kind.dart';
 import '../../api/trace/span_status.dart';
 import '../../sdk/common/attribute.dart';
 import '../resource/resource.dart';
+import 'span_processor.dart';
 
 /// RecordingSpan is the SDK implementation of Span.
 class RecordingSpan implements Span {
@@ -12,6 +13,7 @@ class RecordingSpan implements Span {
   final String? parentSpanId;
   final InstrumentationScope scope;
   final Resource resource;
+  final SpanProcessor processor;
 
   final int startTimeUnixNano;
   int? _endTimeUnixNano;
@@ -29,6 +31,7 @@ class RecordingSpan implements Span {
     required this.kind,
     required this.scope,
     required this.resource,
+    required this.processor,
     this.parentSpanId,
     DateTime? startTime,
     List<SpanLink>? links,
@@ -122,6 +125,8 @@ class RecordingSpan implements Span {
     if (!_ended) {
       _ended = true;
       _endTimeUnixNano = _dateTimeToNanos(endTime ?? DateTime.now());
+      // Notify processor after setting end timestamp
+      processor.onEnd(this);
     }
   }
 

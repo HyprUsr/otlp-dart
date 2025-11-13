@@ -77,13 +77,19 @@ class BatchLogRecordProcessor implements LogRecordProcessor {
 
     _shutdown = true;
     _timer?.cancel();
-    await _exportBatch();
+    // Drain the entire queue
+    while (_queue.isNotEmpty) {
+      await _exportBatch();
+    }
     await exporter.shutdown();
   }
 
   @override
   Future<void> forceFlush() async {
-    await _exportBatch();
+    // Drain the entire queue
+    while (_queue.isNotEmpty) {
+      await _exportBatch();
+    }
     await exporter.forceFlush();
   }
 
