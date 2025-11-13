@@ -18,6 +18,12 @@ export 'src/api/logs/severity.dart';
 
 export 'src/sdk/resource/resource.dart';
 export 'src/sdk/common/attribute.dart';
+export 'src/sdk/trace/tracer_provider_impl.dart';
+export 'src/sdk/trace/span_processor.dart';
+export 'src/sdk/logs/logger_provider_impl.dart';
+export 'src/sdk/logs/log_processor.dart';
+export 'src/sdk/metrics/meter_provider_impl.dart';
+export 'src/sdk/metrics/metric_reader.dart';
 
 export 'src/exporters/otlp_http_trace_exporter.dart';
 export 'src/exporters/otlp_http_metric_exporter.dart';

@@ -56,12 +56,13 @@ class OtlpHttpMetricExporter {
 
     final List<int> body;
     if (_useHttp2) {
-      // TODO: Implement protobuf conversion for metrics
-      // For now, metrics via HTTP/2 are not supported
-      throw UnimplementedError(
-        'Metrics export via HTTP/2 is not yet implemented. '
-        'Use HTTP/1.1 exporter for metrics.',
+      // Use protobuf for HTTP/2
+      final resourceMetrics =
+          ProtobufConverter.metricsToProto(metrics, resource, scope);
+      final request = ExportMetricsServiceRequest(
+        resourceMetrics: resourceMetrics,
       );
+      body = request.writeToBuffer();
     } else {
       // Use JSON for HTTP/1.1
       final jsonBody = jsonEncode({
