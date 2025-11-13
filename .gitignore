@@ -1,0 +1,28 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+build/
+*.lock
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# Coverage
+coverage/
+.test_coverage/
+
+# Documentation
+doc/api/
+
+# OS files
+.DS_Store
+Thumbs.db
