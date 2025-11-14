@@ -11,11 +11,6 @@ import 'http2_stub.dart'
 
 /// OTLP HTTP metric exporter that sends metrics to an OTLP endpoint.
 class OtlpHttpMetricExporter {
-  final Uri endpoint;
-  final Map<String, String> headers;
-  final Duration timeout;
-  final http.Client? _httpClient;
-  final bool _useHttp2;
 
   OtlpHttpMetricExporter({
     required String endpoint,
@@ -25,7 +20,7 @@ class OtlpHttpMetricExporter {
     bool useHttp2 = false,
   })  : endpoint = Uri.parse(endpoint.endsWith('/v1/metrics')
             ? endpoint
-            : '$endpoint/v1/metrics'),
+            : '$endpoint/v1/metrics',),
         headers = {
           'Content-Type': useHttp2 ? 'application/x-protobuf' : 'application/json',
           ...?headers,
@@ -46,6 +41,11 @@ class OtlpHttpMetricExporter {
       useHttp2: true,
     );
   }
+  final Uri endpoint;
+  final Map<String, String> headers;
+  final Duration timeout;
+  final http.Client? _httpClient;
+  final bool _useHttp2;
 
   Future<void> export(
     List<MetricData> metrics,
@@ -88,6 +88,7 @@ class OtlpHttpMetricExporter {
         await _exportViaHttp1(body);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error exporting metrics to OTLP endpoint: $e');
       rethrow;
     }

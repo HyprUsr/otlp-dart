@@ -1,10 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/trace/tracer_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
-import 'package:otlp_dart/src/sdk/logs/logger_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/logs/log_processor.dart';
 
 /// Comprehensive example demonstrating all OTLP Dart features.
 ///
@@ -72,7 +68,7 @@ void main() async {
     processor: BatchSpanProcessor(
       exporter: traceExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 5),
+      scheduledDelayMillis: const Duration(seconds: 5),
     ),
   );
 
@@ -81,7 +77,7 @@ void main() async {
     processor: BatchLogRecordProcessor(
       exporter: logExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 5),
+      scheduledDelayMillis: const Duration(seconds: 5),
     ),
   );
 
@@ -124,26 +120,26 @@ void main() async {
       logger.info('Processing order', attributes: {
         'order.id': AttributeValue.string('ORD-12345'),
         'customer.id': AttributeValue.string('CUST-789'),
-      });
+      },);
 
       print('  📦 Processing order ORD-12345 (\$249.99, 3 items)');
 
       // Simulate validation
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
 
       // Nested span: Validate payment
       await tracer.withSpanAsync(
         'validate-payment',
         (paymentSpan) async {
           paymentSpan.setAttribute(
-              'payment.method', AttributeValue.string('credit-card'));
+              'payment.method', AttributeValue.string('credit-card'),);
           paymentSpan.setAttribute('payment.amount', AttributeValue.double(249.99));
 
           logger.debug('Validating payment method');
 
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
 
-          paymentSpan.setStatus(SpanStatus.ok());
+          paymentSpan.setStatus(const SpanStatus.ok());
           print('  ✓ Payment validated');
         },
         kind: SpanKind.internal,
@@ -158,11 +154,11 @@ void main() async {
 
           logger.debug('Updating inventory');
 
-          await Future.delayed(Duration(milliseconds: 75));
+          await Future.delayed(const Duration(milliseconds: 75));
 
           inventorySpan.addEvent('inventory-updated', attributes: {
             'items.remaining': AttributeValue.int(47),
-          });
+          },);
 
           print('  ✓ Inventory updated');
         },
@@ -178,7 +174,7 @@ void main() async {
 
           logger.info('Sending order confirmation email');
 
-          await Future.delayed(Duration(milliseconds: 30));
+          await Future.delayed(const Duration(milliseconds: 30));
 
           print('  ✓ Confirmation email sent');
         },
@@ -186,7 +182,7 @@ void main() async {
         parent: span,
       );
 
-      span.setStatus(SpanStatus.ok());
+      span.setStatus(const SpanStatus.ok());
       logger.info('Order processed successfully');
     },
     kind: SpanKind.server,
@@ -224,7 +220,7 @@ void main() async {
 
         parentSpan.addEvent('user-fetched', attributes: {
           'status': AttributeValue.int(userResponse.statusCode),
-        });
+        },);
 
         // Fetch posts
         print('  🔗 GET /users/1/posts');
@@ -235,12 +231,12 @@ void main() async {
         parentSpan.addEvent('posts-fetched', attributes: {
           'status': AttributeValue.int(postsResponse.statusCode),
           'count': AttributeValue.int(10), // Simulated
-        });
+        },);
 
         print('  ✓ Fetched user data from 2 API endpoints');
 
         parentSpan.setAttribute('api.calls', AttributeValue.int(2));
-        parentSpan.setStatus(SpanStatus.ok());
+        parentSpan.setStatus(const SpanStatus.ok());
 
         logger.info('User data fetched successfully');
       },
@@ -266,7 +262,7 @@ void main() async {
 
         logger.warn('Attempting potentially risky operation');
 
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
 
         print('  ⚠️  Simulating database error...');
         throw Exception('Database connection timeout');
@@ -343,7 +339,7 @@ void main() async {
     if (i < 3) {
       // Only print first few to keep output clean
       print(
-          '    $method $endpoint -> $statusCode (${duration.toStringAsFixed(1)}ms)');
+          '    $method $endpoint -> $statusCode (${duration.toStringAsFixed(1)}ms)',);
     }
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -363,13 +359,13 @@ void main() async {
   final span1 = tracer.startSpan('async-job-enqueue', kind: SpanKind.producer);
   span1.setAttribute('job.id', AttributeValue.string('JOB-001'));
   span1.setAttribute('job.type', AttributeValue.string('email-batch'));
-  await Future.delayed(Duration(milliseconds: 50));
+  await Future.delayed(const Duration(milliseconds: 50));
   span1.end();
 
   print('  ✓ Job enqueued: JOB-001');
 
   // Link to the previous span from a new trace (simulating async processing)
-  await Future.delayed(Duration(milliseconds: 100));
+  await Future.delayed(const Duration(milliseconds: 100));
 
   final span2 = tracer.startSpan(
     'async-job-process',
@@ -380,12 +376,12 @@ void main() async {
   );
   span2.setAttribute('job.id', AttributeValue.string('JOB-001'));
   span2.setAttribute('worker.id', AttributeValue.string('WORKER-3'));
-  await Future.delayed(Duration(milliseconds: 150));
+  await Future.delayed(const Duration(milliseconds: 150));
   span2.end();
 
   logger.info('Async job processed', attributes: {
     'job.id': AttributeValue.string('JOB-001'),
-  });
+  },);
 
   print('  ✓ Job processed by worker: WORKER-3');
   print('  ✓ Span link created (distributed trace)');
@@ -410,11 +406,11 @@ void main() async {
 
           span.addEvent('checkpoint', attributes: {
             'progress': AttributeValue.double(0.5),
-          });
+          },);
 
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
 
-          span.setStatus(SpanStatus.ok());
+          span.setStatus(const SpanStatus.ok());
         },
         kind: SpanKind.internal,
       ),
@@ -444,7 +440,7 @@ void main() async {
   print('');
 
   print('Waiting for background export...');
-  await Future.delayed(Duration(seconds: 2));
+  await Future.delayed(const Duration(seconds: 2));
 
   print('Shutting down telemetry providers...');
   await tracerProvider.shutdown();

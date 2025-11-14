@@ -3,8 +3,6 @@ import '../common/attribute.dart';
 /// Resource represents the entity producing telemetry.
 /// For example, a process running in a container or a specific application.
 class Resource {
-  final List<Attribute> attributes;
-  final int droppedAttributesCount;
 
   Resource({
     List<Attribute>? attributes,
@@ -24,12 +22,12 @@ class Resource {
 
     if (serviceVersion != null) {
       attrs.add(
-          Attribute('service.version', AttributeValue.string(serviceVersion)));
+          Attribute('service.version', AttributeValue.string(serviceVersion)),);
     }
 
     if (serviceInstanceId != null) {
       attrs.add(Attribute(
-          'service.instance.id', AttributeValue.string(serviceInstanceId)));
+          'service.instance.id', AttributeValue.string(serviceInstanceId),),);
     }
 
     if (additionalAttributes != null) {
@@ -40,6 +38,8 @@ class Resource {
 
     return Resource(attributes: attrs);
   }
+  final List<Attribute> attributes;
+  final int droppedAttributesCount;
 
   Map<String, dynamic> toJson() => {
         'attributes': attributes.map((a) => a.toJson()).toList(),
@@ -50,10 +50,6 @@ class Resource {
 
 /// InstrumentationScope represents the instrumentation library.
 class InstrumentationScope {
-  final String name;
-  final String? version;
-  final List<Attribute> attributes;
-  final int droppedAttributesCount;
 
   InstrumentationScope({
     required this.name,
@@ -61,6 +57,10 @@ class InstrumentationScope {
     List<Attribute>? attributes,
     this.droppedAttributesCount = 0,
   }) : attributes = attributes ?? [];
+  final String name;
+  final String? version;
+  final List<Attribute> attributes;
+  final int droppedAttributesCount;
 
   Map<String, dynamic> toJson() => {
         'name': name,

@@ -13,10 +13,10 @@ Future<Http2Transport> createHttp2Transport(String host, int port) async {
 }
 
 class _IOHttp2Transport implements Http2Transport {
-  final ClientTransportConnection _transport;
 
   _IOHttp2Transport(Socket socket)
       : _transport = ClientTransportConnection.viaSocket(socket);
+  final ClientTransportConnection _transport;
 
   @override
   Future<Http2Response> request({

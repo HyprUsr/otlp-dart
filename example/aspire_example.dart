@@ -1,8 +1,4 @@
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/trace/tracer_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
-import 'package:otlp_dart/src/sdk/logs/logger_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/logs/log_processor.dart';
 
 /// Example demonstrating how to use otlp_dart with .NET Aspire Dashboard.
 ///
@@ -41,7 +37,7 @@ void main() async {
     processor: BatchSpanProcessor(
       exporter: traceExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 5),
+      scheduledDelayMillis: const Duration(seconds: 5),
     ),
   );
 
@@ -57,7 +53,7 @@ void main() async {
     processor: BatchLogRecordProcessor(
       exporter: logExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 5),
+      scheduledDelayMillis: const Duration(seconds: 5),
     ),
   );
 
@@ -78,23 +74,23 @@ void main() async {
 
       logger.info('Processing order 12345', attributes: {
         'order.id': AttributeValue.string('12345'),
-      });
+      },);
 
       // Simulate some work
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
 
       // Create nested span
       await tracer.withSpanAsync(
         'validate-payment',
         (paymentSpan) async {
           paymentSpan.setAttribute(
-              'payment.method', AttributeValue.string('credit-card'));
+              'payment.method', AttributeValue.string('credit-card'),);
 
           logger.debug('Validating payment');
 
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
 
-          paymentSpan.setStatus(SpanStatus.ok());
+          paymentSpan.setStatus(const SpanStatus.ok());
         },
         kind: SpanKind.internal,
         parent: span,
@@ -108,13 +104,13 @@ void main() async {
 
           logger.info('Sending confirmation email');
 
-          await Future.delayed(Duration(milliseconds: 30));
+          await Future.delayed(const Duration(milliseconds: 30));
         },
         kind: SpanKind.client,
         parent: span,
       );
 
-      span.setStatus(SpanStatus.ok());
+      span.setStatus(const SpanStatus.ok());
     },
     kind: SpanKind.server,
   );
@@ -130,7 +126,7 @@ void main() async {
 
         logger.warn('Attempting risky operation');
 
-        await Future.delayed(Duration(milliseconds: 20));
+        await Future.delayed(const Duration(milliseconds: 20));
 
         throw Exception('Database connection failed');
       },
@@ -153,17 +149,17 @@ void main() async {
 
           logger.info('Running background task $i', attributes: {
             'task.id': AttributeValue.int(i),
-          });
+          },);
 
           await Future.delayed(Duration(milliseconds: 50 + i * 10));
 
           span.addEvent('task-checkpoint', attributes: {
             'progress': AttributeValue.double(0.5),
-          });
+          },);
 
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
 
-          span.setStatus(SpanStatus.ok());
+          span.setStatus(const SpanStatus.ok());
         },
         kind: SpanKind.internal,
       ),
@@ -186,7 +182,7 @@ void main() async {
   // Example 5: Span with links (distributed tracing)
   final span1 = tracer.startSpan('operation-1', kind: SpanKind.client);
   span1.setAttribute('operation', AttributeValue.string('fetch-data'));
-  await Future.delayed(Duration(milliseconds: 50));
+  await Future.delayed(const Duration(milliseconds: 50));
   span1.end();
 
   // Link to the previous span from a new trace
@@ -198,7 +194,7 @@ void main() async {
     ],
   );
   span2.setAttribute('operation', AttributeValue.string('process-data'));
-  await Future.delayed(Duration(milliseconds: 50));
+  await Future.delayed(const Duration(milliseconds: 50));
   span2.end();
 
   print('✓ Sent linked spans (distributed trace)');
@@ -213,7 +209,7 @@ void main() async {
   print('✓ All telemetry flushed successfully');
 
   // Cleanup
-  await Future.delayed(Duration(seconds: 1));
+  await Future.delayed(const Duration(seconds: 1));
   await tracerProvider.shutdown();
   await loggerProvider.shutdown();
 

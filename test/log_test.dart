@@ -1,7 +1,5 @@
 import 'package:test/test.dart';
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/logs/logger_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/logs/log_processor.dart';
 import 'package:otlp_dart/src/sdk/logs/log_exporter.dart';
 
 class TestLogExporter implements LogRecordExporter {
@@ -61,7 +59,7 @@ void main() {
       logger.info('test message', attributes: {
         'key': AttributeValue.string('value'),
         'number': AttributeValue.int(42),
-      });
+      },);
 
       expect(exporter.exportedLogs.length, equals(1));
       final log = exporter.exportedLogs.first;

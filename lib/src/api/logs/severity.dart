@@ -25,8 +25,8 @@ enum Severity {
   fatal3(23),
   fatal4(24);
 
-  final int value;
   const Severity(this.value);
+  final int value;
 
   String get text {
     if (value <= 4) return 'TRACE';

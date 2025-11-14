@@ -11,11 +11,6 @@ import 'http2_stub.dart'
 
 /// OTLP HTTP trace exporter that sends traces to an OTLP endpoint.
 class OtlpHttpTraceExporter implements SpanExporter {
-  final Uri endpoint;
-  final Map<String, String> headers;
-  final Duration timeout;
-  final http.Client? _httpClient;
-  final bool _useHttp2;
 
   OtlpHttpTraceExporter({
     required String endpoint,
@@ -25,7 +20,7 @@ class OtlpHttpTraceExporter implements SpanExporter {
     bool useHttp2 = false,
   })  : endpoint = Uri.parse(endpoint.endsWith('/v1/traces')
             ? endpoint
-            : '$endpoint/v1/traces'),
+            : '$endpoint/v1/traces',),
         headers = {
           'Content-Type': useHttp2 ? 'application/x-protobuf' : 'application/json',
           ...?headers,
@@ -46,6 +41,11 @@ class OtlpHttpTraceExporter implements SpanExporter {
       useHttp2: true,
     );
   }
+  final Uri endpoint;
+  final Map<String, String> headers;
+  final Duration timeout;
+  final http.Client? _httpClient;
+  final bool _useHttp2;
 
   @override
   Future<void> export(List<RecordingSpan> spans) async {
@@ -107,6 +107,7 @@ class OtlpHttpTraceExporter implements SpanExporter {
         await _exportViaHttp1(body);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error exporting traces to OTLP endpoint: $e');
       rethrow;
     }

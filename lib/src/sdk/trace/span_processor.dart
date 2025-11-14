@@ -34,9 +34,9 @@ class NoopSpanProcessor implements SpanProcessor {
 
 /// SimpleSpanProcessor exports spans immediately when they end.
 class SimpleSpanProcessor implements SpanProcessor {
-  final SpanExporter exporter;
 
   SimpleSpanProcessor(this.exporter);
+  final SpanExporter exporter;
 
   @override
   void onStart(RecordingSpan span) {}
@@ -59,14 +59,6 @@ class SimpleSpanProcessor implements SpanProcessor {
 
 /// BatchSpanProcessor batches spans and exports them periodically.
 class BatchSpanProcessor implements SpanProcessor {
-  final SpanExporter exporter;
-  final int maxQueueSize;
-  final int maxExportBatchSize;
-  final Duration scheduledDelayMillis;
-
-  final List<RecordingSpan> _queue = [];
-  Timer? _timer;
-  bool _shutdown = false;
 
   BatchSpanProcessor({
     required this.exporter,
@@ -76,6 +68,14 @@ class BatchSpanProcessor implements SpanProcessor {
   }) {
     _startTimer();
   }
+  final SpanExporter exporter;
+  final int maxQueueSize;
+  final int maxExportBatchSize;
+  final Duration scheduledDelayMillis;
+
+  final List<RecordingSpan> _queue = [];
+  Timer? _timer;
+  bool _shutdown = false;
 
   @override
   void onStart(RecordingSpan span) {}
@@ -138,6 +138,7 @@ class BatchSpanProcessor implements SpanProcessor {
       await exporter.export(batch);
     } catch (e) {
       // Log error but continue processing
+      // ignore: avoid_print
       print('Error exporting spans: $e');
     }
   }

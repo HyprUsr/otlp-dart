@@ -9,16 +9,16 @@ import 'span_processor.dart';
 
 /// Implementation of the Tracer interface.
 class TracerImpl implements Tracer {
-  final InstrumentationScope scope;
-  final Resource resource;
-  final SpanProcessor processor;
-  final Random _random = Random();
 
   TracerImpl({
     required this.scope,
     required this.resource,
     required this.processor,
   });
+  final InstrumentationScope scope;
+  final Resource resource;
+  final SpanProcessor processor;
+  final Random _random = Random();
 
   @override
   Span startSpan(

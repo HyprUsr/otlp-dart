@@ -339,7 +339,7 @@ class ProtobufConverter {
   }
 
   static metrics_pb.HistogramDataPoint _histogramDataPointToProto(
-      HistogramDataPoint dp) {
+      HistogramDataPoint dp,) {
     return metrics_pb.HistogramDataPoint(
       attributes: dp.attributes.map(_attributeToProto).toList(),
       startTimeUnixNano: Int64(dp.startTimeUnixNano),

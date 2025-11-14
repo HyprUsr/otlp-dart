@@ -43,10 +43,10 @@ void main() {
       // Add some values
       counter.add(1, attributes: {
         'method': AttributeValue.string('GET'),
-      });
+      },);
       counter.add(2, attributes: {
         'method': AttributeValue.string('POST'),
-      });
+      },);
 
       // Collect metrics
       final metrics = reader.collectMetrics();
@@ -83,13 +83,13 @@ void main() {
       // Record some values
       histogram.record(10.5, attributes: {
         'endpoint': AttributeValue.string('/api/users'),
-      });
+      },);
       histogram.record(25.3, attributes: {
         'endpoint': AttributeValue.string('/api/products'),
-      });
+      },);
       histogram.record(150.7, attributes: {
         'endpoint': AttributeValue.string('/api/orders'),
-      });
+      },);
 
       // Collect metrics
       final metrics = reader.collectMetrics();
@@ -188,13 +188,13 @@ void main() {
       // Add positive and negative values
       upDownCounter.add(10, attributes: {
         'direction': AttributeValue.string('up'),
-      });
+      },);
       upDownCounter.add(-3, attributes: {
         'direction': AttributeValue.string('down'),
-      });
+      },);
       upDownCounter.add(5, attributes: {
         'direction': AttributeValue.string('up'),
-      });
+      },);
 
       // Collect metrics
       final metrics = reader.collectMetrics();
@@ -320,19 +320,19 @@ void main() {
       histogram.record(10.0, attributes: {
         'endpoint': AttributeValue.string('/api/users'),
         'method': AttributeValue.string('GET'),
-      });
+      },);
       histogram.record(20.0, attributes: {
         'endpoint': AttributeValue.string('/api/users'),
         'method': AttributeValue.string('GET'),
-      });
+      },);
       histogram.record(30.0, attributes: {
         'endpoint': AttributeValue.string('/api/users'),
         'method': AttributeValue.string('POST'),
-      });
+      },);
       histogram.record(40.0, attributes: {
         'endpoint': AttributeValue.string('/api/products'),
         'method': AttributeValue.string('GET'),
-      });
+      },);
 
       // Collect metrics
       final metrics = reader.collectMetrics();
@@ -377,7 +377,7 @@ void main() {
         'int_attr': AttributeValue.int(42),
         'double_attr': AttributeValue.double(3.14),
         'bool_attr': AttributeValue.bool(true),
-      });
+      },);
 
       counter.add(2, attributes: {
         'array_attr': AttributeValue.array([
@@ -385,7 +385,7 @@ void main() {
           AttributeValue.string('b'),
           AttributeValue.string('c'),
         ]),
-      });
+      },);
 
       counter.add(3, attributes: {
         'int_array': AttributeValue.array([
@@ -393,7 +393,7 @@ void main() {
           AttributeValue.int(2),
           AttributeValue.int(3),
         ]),
-      });
+      },);
 
       counter.add(4, attributes: {
         'double_array': AttributeValue.array([
@@ -401,7 +401,7 @@ void main() {
           AttributeValue.double(2.2),
           AttributeValue.double(3.3),
         ]),
-      });
+      },);
 
       counter.add(5, attributes: {
         'bool_array': AttributeValue.array([
@@ -409,7 +409,7 @@ void main() {
           AttributeValue.bool(false),
           AttributeValue.bool(true),
         ]),
-      });
+      },);
 
       // Collect metrics
       final metrics = reader.collectMetrics();
@@ -451,7 +451,7 @@ void main() {
       // Add values
       counter.add(10, attributes: {
         'key': AttributeValue.string('value'),
-      });
+      },);
 
       // First collection
       var metrics = reader.collectMetrics();
@@ -465,7 +465,7 @@ void main() {
       // Add more values
       counter.add(5, attributes: {
         'key': AttributeValue.string('value'),
-      });
+      },);
 
       // Second collection - should only have new values (delta)
       metrics = reader.collectMetrics();
@@ -623,7 +623,7 @@ void main() {
 
       expect(scopeWithAttrs.name, 'test-scope');
       expect(scopeWithAttrs.version, '1.2.3');
-      expect(scopeWithAttrs.attributes?.length, 1);
+      expect(scopeWithAttrs.attributes.length, 1);
 
       // Test JSON serialization
       final json = scopeWithAttrs.toJson();
@@ -800,7 +800,7 @@ void main() {
         'connections.active',
         'request.duration',
         'cpu.usage',
-      ]));
+      ]),);
 
       // Clean up
       meterProvider.shutdown();

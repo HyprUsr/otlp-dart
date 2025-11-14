@@ -7,7 +7,7 @@ abstract class Meter {
 
   /// Creates an up-down counter instrument.
   UpDownCounter createUpDownCounter(String name,
-      {String? unit, String? description});
+      {String? unit, String? description,});
 
   /// Creates a histogram instrument.
   Histogram createHistogram(String name, {String? unit, String? description});

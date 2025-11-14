@@ -10,14 +10,6 @@ abstract class MetricData {
 
 /// SumData represents a sum metric.
 class SumData implements MetricData {
-  @override
-  final String name;
-  @override
-  final String? unit;
-  @override
-  final String? description;
-  final List<DataPoint> dataPoints;
-  final bool isMonotonic;
 
   SumData({
     required this.name,
@@ -26,6 +18,14 @@ class SumData implements MetricData {
     required this.dataPoints,
     this.isMonotonic = true,
   });
+  @override
+  final String name;
+  @override
+  final String? unit;
+  @override
+  final String? description;
+  final List<DataPoint> dataPoints;
+  final bool isMonotonic;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -42,13 +42,6 @@ class SumData implements MetricData {
 
 /// GaugeData represents a gauge metric.
 class GaugeData implements MetricData {
-  @override
-  final String name;
-  @override
-  final String? unit;
-  @override
-  final String? description;
-  final List<DataPoint> dataPoints;
 
   GaugeData({
     required this.name,
@@ -56,6 +49,13 @@ class GaugeData implements MetricData {
     this.description,
     required this.dataPoints,
   });
+  @override
+  final String name;
+  @override
+  final String? unit;
+  @override
+  final String? description;
+  final List<DataPoint> dataPoints;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -70,13 +70,6 @@ class GaugeData implements MetricData {
 
 /// HistogramData represents a histogram metric.
 class HistogramData implements MetricData {
-  @override
-  final String name;
-  @override
-  final String? unit;
-  @override
-  final String? description;
-  final List<HistogramDataPoint> dataPoints;
 
   HistogramData({
     required this.name,
@@ -84,6 +77,13 @@ class HistogramData implements MetricData {
     this.description,
     required this.dataPoints,
   });
+  @override
+  final String name;
+  @override
+  final String? unit;
+  @override
+  final String? description;
+  final List<HistogramDataPoint> dataPoints;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -99,10 +99,6 @@ class HistogramData implements MetricData {
 
 /// DataPoint represents a single data point in a metric.
 class DataPoint {
-  final List<Attribute> attributes;
-  final int startTimeUnixNano;
-  final int timeUnixNano;
-  final num value;
 
   DataPoint({
     required this.attributes,
@@ -110,6 +106,10 @@ class DataPoint {
     required this.timeUnixNano,
     required this.value,
   });
+  final List<Attribute> attributes;
+  final int startTimeUnixNano;
+  final int timeUnixNano;
+  final num value;
 
   Map<String, dynamic> toJson() => {
         'attributes': attributes.map((a) => a.toJson()).toList(),
@@ -124,15 +124,6 @@ class DataPoint {
 
 /// HistogramDataPoint represents a histogram data point.
 class HistogramDataPoint {
-  final List<Attribute> attributes;
-  final int startTimeUnixNano;
-  final int timeUnixNano;
-  final int count;
-  final double sum;
-  final List<int> bucketCounts;
-  final List<double> explicitBounds;
-  final double? min;
-  final double? max;
 
   HistogramDataPoint({
     required this.attributes,
@@ -145,6 +136,15 @@ class HistogramDataPoint {
     this.min,
     this.max,
   });
+  final List<Attribute> attributes;
+  final int startTimeUnixNano;
+  final int timeUnixNano;
+  final int count;
+  final double sum;
+  final List<int> bucketCounts;
+  final List<double> explicitBounds;
+  final double? min;
+  final double? max;
 
   Map<String, dynamic> toJson() => {
         'attributes': attributes.map((a) => a.toJson()).toList(),

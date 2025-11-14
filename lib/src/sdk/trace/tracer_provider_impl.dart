@@ -6,14 +6,14 @@ import 'tracer_impl.dart';
 
 /// Implementation of TracerProvider.
 class TracerProviderImpl implements TracerProvider {
-  final Resource resource;
-  final SpanProcessor processor;
-  final Map<String, Tracer> _tracers = {};
 
   TracerProviderImpl({
     required this.resource,
     required this.processor,
   });
+  final Resource resource;
+  final SpanProcessor processor;
+  final Map<String, Tracer> _tracers = {};
 
   @override
   Tracer getTracer(String name, {String? version}) {

@@ -1,6 +1,4 @@
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/trace/tracer_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
 
 /// Example demonstrating HTTP client instrumentation with OpenTelemetry.
 ///
@@ -43,7 +41,7 @@ void main() async {
     processor: BatchSpanProcessor(
       exporter: traceExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 2),
+      scheduledDelayMillis: const Duration(seconds: 2),
     ),
   );
 
@@ -81,7 +79,7 @@ void main() async {
         parentSpan.addEvent('response-received', attributes: {
           'status': AttributeValue.int(response.statusCode),
           'body_length': AttributeValue.int(response.body.length),
-        });
+        },);
 
         print('  ✓ Status: ${response.statusCode}');
         print('  ✓ User: ${response.body.substring(0, 50)}...');
@@ -178,21 +176,21 @@ void main() async {
       'process-user-data',
       (parentSpan) async {
         // First, fetch the user
-        final userResponse = await client.get(
+        await client.get(
           Uri.parse('https://jsonplaceholder.typicode.com/users/1'),
         );
 
         parentSpan.addEvent('user-fetched');
 
         // Then, fetch their posts
-        final postsResponse = await client.get(
+        await client.get(
           Uri.parse('https://jsonplaceholder.typicode.com/users/1/posts'),
         );
 
         parentSpan.addEvent('posts-fetched');
 
         // Finally, fetch their todos
-        final todosResponse = await client.get(
+        await client.get(
           Uri.parse('https://jsonplaceholder.typicode.com/users/1/todos'),
         );
 
@@ -219,7 +217,7 @@ void main() async {
   print('✓ Telemetry flushed');
 
   // Cleanup
-  await Future.delayed(Duration(seconds: 1));
+  await Future.delayed(const Duration(seconds: 1));
   await tracerProvider.shutdown();
 
   print('\nDone! Check the Aspire Dashboard at http://localhost:18888');

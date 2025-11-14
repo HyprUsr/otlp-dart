@@ -1,9 +1,9 @@
 /// Attribute key-value pairs used in OTLP.
 class Attribute {
-  final String key;
-  final AttributeValue value;
 
   Attribute(this.key, this.value);
+  final String key;
+  final AttributeValue value;
 
   Map<String, dynamic> toJson() => {
         'key': key,
@@ -13,12 +13,6 @@ class Attribute {
 
 /// Attribute value that can be of different types.
 class AttributeValue {
-  final String? stringValue;
-  final bool? boolValue;
-  final int? intValue;
-  final double? doubleValue;
-  final List<AttributeValue>? arrayValue;
-  final Map<String, AttributeValue>? kvlistValue;
 
   AttributeValue.string(String value)
       : stringValue = value,
@@ -67,6 +61,12 @@ class AttributeValue {
         doubleValue = null,
         arrayValue = null,
         kvlistValue = value;
+  final String? stringValue;
+  final bool? boolValue;
+  final int? intValue;
+  final double? doubleValue;
+  final List<AttributeValue>? arrayValue;
+  final Map<String, AttributeValue>? kvlistValue;
 
   Map<String, dynamic> toJson() {
     if (stringValue != null) return {'stringValue': stringValue};
@@ -77,7 +77,7 @@ class AttributeValue {
       return {
         'arrayValue': {
           'values': arrayValue!.map((v) => v.toJson()).toList(),
-        }
+        },
       };
     }
     if (kvlistValue != null) {
@@ -86,7 +86,7 @@ class AttributeValue {
           'values': kvlistValue!.entries
               .map((e) => {'key': e.key, 'value': e.value.toJson()})
               .toList(),
-        }
+        },
       };
     }
     return {};

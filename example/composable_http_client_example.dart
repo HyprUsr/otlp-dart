@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/trace/tracer_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
 
 /// Example demonstrating how to compose multiple HTTP client wrappers.
 ///
@@ -18,9 +16,9 @@ import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
 
 /// A simple logging HTTP client that logs all requests
 class LoggingHttpClient extends http.BaseClient {
-  final http.BaseClient _inner;
 
   LoggingHttpClient(http.BaseClient inner) : _inner = inner;
+  final http.BaseClient _inner;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -45,15 +43,15 @@ class LoggingHttpClient extends http.BaseClient {
 
 /// A simple retry HTTP client
 class RetryHttpClient extends http.BaseClient {
-  final http.BaseClient _inner;
-  final int maxRetries;
-  final Duration retryDelay;
 
   RetryHttpClient(
     http.BaseClient inner, {
     this.maxRetries = 3,
     this.retryDelay = const Duration(milliseconds: 500),
   }) : _inner = inner;
+  final http.BaseClient _inner;
+  final int maxRetries;
+  final Duration retryDelay;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -78,13 +76,13 @@ class RetryHttpClient extends http.BaseClient {
 
 /// A custom header injection client
 class HeaderInjectionHttpClient extends http.BaseClient {
-  final http.BaseClient _inner;
-  final Map<String, String> headers;
 
   HeaderInjectionHttpClient(
     http.BaseClient inner, {
     required this.headers,
   }) : _inner = inner;
+  final http.BaseClient _inner;
+  final Map<String, String> headers;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -93,7 +91,7 @@ class HeaderInjectionHttpClient extends http.BaseClient {
     headers.forEach((key, value) {
       newRequest.headers[key] = value;
     });
-    return await _inner.send(newRequest);
+    return _inner.send(newRequest);
   }
 
   http.BaseRequest _cloneRequest(http.BaseRequest request) {
@@ -145,7 +143,7 @@ void main() async {
     processor: BatchSpanProcessor(
       exporter: traceExporter,
       maxExportBatchSize: 512,
-      scheduledDelayMillis: Duration(seconds: 2),
+      scheduledDelayMillis: const Duration(seconds: 2),
     ),
   );
 
@@ -234,7 +232,7 @@ void main() async {
   // Flush telemetry
   print('Flushing telemetry to Aspire Dashboard...');
   await tracerProvider.forceFlush();
-  await Future.delayed(Duration(seconds: 1));
+  await Future.delayed(const Duration(seconds: 1));
   await tracerProvider.shutdown();
 
   print('\n✓ Done! Check the Aspire Dashboard at http://localhost:18888');

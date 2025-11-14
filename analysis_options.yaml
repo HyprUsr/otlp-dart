@@ -17,5 +17,9 @@ analyzer:
   exclude:
     - '**/*.g.dart'
     - '**/*.freezed.dart'
+    - '**/*.pb.dart'
+    - '**/*.pbenum.dart'
+    - '**/*.pbjson.dart'
+    - '**/*.pbserver.dart'
   errors:
     invalid_annotation_target: ignore

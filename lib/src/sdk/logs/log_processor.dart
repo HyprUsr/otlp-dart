@@ -16,9 +16,9 @@ abstract class LogRecordProcessor {
 
 /// SimpleLogRecordProcessor exports log records immediately.
 class SimpleLogRecordProcessor implements LogRecordProcessor {
-  final LogRecordExporter exporter;
 
   SimpleLogRecordProcessor(this.exporter);
+  final LogRecordExporter exporter;
 
   @override
   void onEmit(LogRecord logRecord) {
@@ -38,14 +38,6 @@ class SimpleLogRecordProcessor implements LogRecordProcessor {
 
 /// BatchLogRecordProcessor batches log records and exports them periodically.
 class BatchLogRecordProcessor implements LogRecordProcessor {
-  final LogRecordExporter exporter;
-  final int maxQueueSize;
-  final int maxExportBatchSize;
-  final Duration scheduledDelayMillis;
-
-  final List<LogRecord> _queue = [];
-  Timer? _timer;
-  bool _shutdown = false;
 
   BatchLogRecordProcessor({
     required this.exporter,
@@ -55,6 +47,14 @@ class BatchLogRecordProcessor implements LogRecordProcessor {
   }) {
     _startTimer();
   }
+  final LogRecordExporter exporter;
+  final int maxQueueSize;
+  final int maxExportBatchSize;
+  final Duration scheduledDelayMillis;
+
+  final List<LogRecord> _queue = [];
+  Timer? _timer;
+  bool _shutdown = false;
 
   @override
   void onEmit(LogRecord logRecord) {
@@ -110,6 +110,7 @@ class BatchLogRecordProcessor implements LogRecordProcessor {
     try {
       await exporter.export(batch);
     } catch (e) {
+      // ignore: avoid_print
       print('Error exporting log records: $e');
     }
   }

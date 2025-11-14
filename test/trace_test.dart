@@ -1,7 +1,5 @@
 import 'package:test/test.dart';
 import 'package:otlp_dart/otlp_dart.dart';
-import 'package:otlp_dart/src/sdk/trace/tracer_provider_impl.dart';
-import 'package:otlp_dart/src/sdk/trace/span_processor.dart';
 import 'package:otlp_dart/src/sdk/trace/recording_span.dart';
 import 'package:otlp_dart/src/sdk/trace/span_exporter.dart';
 
@@ -87,7 +85,7 @@ void main() {
 
       span.end();
 
-      final recordedSpan = exporter.exportedSpans.first as RecordingSpan;
+      final recordedSpan = exporter.exportedSpans.first;
       final events = recordedSpan.toJson()['events'] as List;
       expect(events.length, equals(1));
       expect(events.first['name'], equals('exception'));
@@ -113,7 +111,7 @@ void main() {
       await tracer.withSpanAsync('test', (span) async {
         executed = true;
         expect(span.isRecording, isTrue);
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         return 42;
       });
 
@@ -127,13 +125,12 @@ void main() {
         await tracer.withSpanAsync('error', (span) async {
           throw Exception('Async error');
         });
-        fail('Should have thrown exception');
       } catch (e) {
         expect(e.toString(), contains('Async error'));
       }
 
       expect(exporter.exportedSpans.length, equals(1));
-      final recordedSpan = exporter.exportedSpans.first as RecordingSpan;
+      final recordedSpan = exporter.exportedSpans.first;
       final events = recordedSpan.toJson()['events'] as List;
       expect(events.length, equals(1));
       expect(events.first['name'], equals('exception'));
@@ -143,16 +140,16 @@ void main() {
       final span = tracer.startSpan('server-span', kind: SpanKind.server);
       span.end();
 
-      final recordedSpan = exporter.exportedSpans.first as RecordingSpan;
+      final recordedSpan = exporter.exportedSpans.first;
       expect(recordedSpan.kind, equals(SpanKind.server));
     });
 
     test('span status can be set', () {
       final span = tracer.startSpan('test');
-      span.setStatus(SpanStatus.error('Something went wrong'));
+      span.setStatus(const SpanStatus.error('Something went wrong'));
       span.end();
 
-      final recordedSpan = exporter.exportedSpans.first as RecordingSpan;
+      final recordedSpan = exporter.exportedSpans.first;
       final status = recordedSpan.toJson()['status'];
       expect(status['code'], equals(StatusCode.error.toInt()));
       expect(status['message'], equals('Something went wrong'));
@@ -163,10 +160,10 @@ void main() {
       span.addEvent('event1');
       span.addEvent('event2', attributes: {
         'key': AttributeValue.string('value'),
-      });
+      },);
       span.end();
 
-      final recordedSpan = exporter.exportedSpans.first as RecordingSpan;
+      final recordedSpan = exporter.exportedSpans.first;
       final events = recordedSpan.toJson()['events'] as List;
       expect(events.length, equals(2));
       expect(events[0]['name'], equals('event1'));

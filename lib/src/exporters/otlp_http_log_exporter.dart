@@ -11,11 +11,6 @@ import 'http2_stub.dart'
 
 /// OTLP HTTP log exporter that sends logs to an OTLP endpoint.
 class OtlpHttpLogExporter implements LogRecordExporter {
-  final Uri endpoint;
-  final Map<String, String> headers;
-  final Duration timeout;
-  final http.Client? _httpClient;
-  final bool _useHttp2;
 
   OtlpHttpLogExporter({
     required String endpoint,
@@ -25,7 +20,7 @@ class OtlpHttpLogExporter implements LogRecordExporter {
     bool useHttp2 = false,
   })  : endpoint = Uri.parse(endpoint.endsWith('/v1/logs')
             ? endpoint
-            : '$endpoint/v1/logs'),
+            : '$endpoint/v1/logs',),
         headers = {
           'Content-Type': useHttp2 ? 'application/x-protobuf' : 'application/json',
           ...?headers,
@@ -46,6 +41,11 @@ class OtlpHttpLogExporter implements LogRecordExporter {
       useHttp2: true,
     );
   }
+  final Uri endpoint;
+  final Map<String, String> headers;
+  final Duration timeout;
+  final http.Client? _httpClient;
+  final bool _useHttp2;
 
   @override
   Future<void> export(List<LogRecord> logRecords) async {
@@ -105,6 +105,7 @@ class OtlpHttpLogExporter implements LogRecordExporter {
         await _exportViaHttp1(body);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error exporting logs to OTLP endpoint: $e');
       rethrow;
     }

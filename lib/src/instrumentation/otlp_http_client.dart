@@ -37,12 +37,6 @@ import 'http_semantic_conventions.dart';
 /// }
 /// ```
 class OtlpHttpClient extends http.BaseClient {
-  final Tracer tracer;
-  final http.BaseClient _inner;
-  final bool captureHeaders;
-  final bool captureRequestBody;
-  final bool captureResponseBody;
-  final int maxBodyCaptureSize;
 
   OtlpHttpClient(
     this.tracer, {
@@ -52,14 +46,19 @@ class OtlpHttpClient extends http.BaseClient {
     this.captureResponseBody = false,
     this.maxBodyCaptureSize = 1024,
   }) : _inner = inner ?? (http.Client() as http.BaseClient);
+  final Tracer tracer;
+  final http.BaseClient _inner;
+  final bool captureHeaders;
+  final bool captureRequestBody;
+  final bool captureResponseBody;
+  final int maxBodyCaptureSize;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     final method = request.method;
-    final uri = request.url;
     final spanName = HttpSemanticConventions.getClientSpanName(method);
 
-    return await tracer.withSpanAsync<http.StreamedResponse>(
+    return tracer.withSpanAsync<http.StreamedResponse>(
       spanName,
       (span) async {
         // Set basic HTTP attributes
@@ -211,7 +210,7 @@ class OtlpHttpClient extends http.BaseClient {
 
   void _setSpanStatus(Span span, int statusCode) {
     if (statusCode >= 200 && statusCode < 400) {
-      span.setStatus(SpanStatus.ok());
+      span.setStatus(const SpanStatus.ok());
     } else if (statusCode >= 400 && statusCode < 600) {
       span.setStatus(
         SpanStatus.error('HTTP $statusCode'),

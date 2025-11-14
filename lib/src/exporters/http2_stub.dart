@@ -1,5 +1,6 @@
 /// Stub implementation for HTTP/2 transport.
 /// This file is used when no platform-specific implementation is available.
+library;
 
 import 'dart:typed_data';
 
@@ -29,11 +30,11 @@ abstract class Http2Transport {
 
 /// HTTP/2 response.
 class Http2Response {
-  final int statusCode;
-  final List<int> body;
 
   Http2Response({
     required this.statusCode,
     required this.body,
   });
+  final int statusCode;
+  final List<int> body;
 }

@@ -34,10 +34,6 @@ abstract class Span {
 
 /// SpanContext contains the identifying information of a span.
 class SpanContext {
-  final String traceId;
-  final String spanId;
-  final int traceFlags;
-  final String? traceState;
 
   SpanContext({
     required this.traceId,
@@ -45,6 +41,10 @@ class SpanContext {
     this.traceFlags = 1, // sampled
     this.traceState,
   });
+  final String traceId;
+  final String spanId;
+  final int traceFlags;
+  final String? traceState;
 
   bool get isValid => traceId.isNotEmpty && spanId.isNotEmpty;
   bool get isSampled => (traceFlags & 1) != 0;
@@ -58,10 +58,6 @@ class SpanContext {
 
 /// SpanEvent represents an event that occurred during a span.
 class SpanEvent {
-  final String name;
-  final int timeUnixNano;
-  final List<Attribute> attributes;
-  final int droppedAttributesCount;
 
   SpanEvent({
     required this.name,
@@ -69,6 +65,10 @@ class SpanEvent {
     List<Attribute>? attributes,
     this.droppedAttributesCount = 0,
   }) : attributes = attributes ?? [];
+  final String name;
+  final int timeUnixNano;
+  final List<Attribute> attributes;
+  final int droppedAttributesCount;
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -82,15 +82,15 @@ class SpanEvent {
 
 /// SpanLink represents a link to another span.
 class SpanLink {
-  final SpanContext context;
-  final List<Attribute> attributes;
-  final int droppedAttributesCount;
 
   SpanLink({
     required this.context,
     List<Attribute>? attributes,
     this.droppedAttributesCount = 0,
   }) : attributes = attributes ?? [];
+  final SpanContext context;
+  final List<Attribute> attributes;
+  final int droppedAttributesCount;
 
   Map<String, dynamic> toJson() => {
         'traceId': context.traceId,

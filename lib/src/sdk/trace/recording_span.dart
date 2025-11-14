@@ -7,23 +7,6 @@ import 'span_processor.dart';
 
 /// RecordingSpan is the SDK implementation of Span.
 class RecordingSpan implements Span {
-  final String name;
-  final SpanContext _context;
-  final SpanKind kind;
-  final String? parentSpanId;
-  final InstrumentationScope scope;
-  final Resource resource;
-  final SpanProcessor processor;
-
-  final int startTimeUnixNano;
-  int? _endTimeUnixNano;
-
-  final List<Attribute> _attributes = [];
-  final List<SpanEvent> _events = [];
-  final List<SpanLink> _links = [];
-  SpanStatus _status = const SpanStatus.unset();
-
-  bool _ended = false;
 
   RecordingSpan({
     required this.name,
@@ -41,6 +24,23 @@ class RecordingSpan implements Span {
       _links.addAll(links);
     }
   }
+  final String name;
+  final SpanContext _context;
+  final SpanKind kind;
+  final String? parentSpanId;
+  final InstrumentationScope scope;
+  final Resource resource;
+  final SpanProcessor processor;
+
+  final int startTimeUnixNano;
+  int? _endTimeUnixNano;
+
+  final List<Attribute> _attributes = [];
+  final List<SpanEvent> _events = [];
+  final List<SpanLink> _links = [];
+  SpanStatus _status = const SpanStatus.unset();
+
+  bool _ended = false;
 
   @override
   SpanContext get context => _context;
@@ -84,7 +84,7 @@ class RecordingSpan implements Span {
         name: name,
         timeUnixNano: _dateTimeToNanos(DateTime.now()),
         attributes: attrs,
-      ));
+      ),);
     }
   }
 

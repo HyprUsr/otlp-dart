@@ -4,18 +4,6 @@ import 'severity.dart';
 
 /// LogRecord represents a single log entry.
 class LogRecord {
-  final int timeUnixNano;
-  final int observedTimeUnixNano;
-  final Severity severity;
-  final String body;
-  final List<Attribute> attributes;
-  final int droppedAttributesCount;
-  final int flags;
-  final String? traceId;
-  final String? spanId;
-
-  final InstrumentationScope scope;
-  final Resource resource;
 
   LogRecord({
     required this.timeUnixNano,
@@ -30,6 +18,18 @@ class LogRecord {
     this.traceId,
     this.spanId,
   }) : attributes = attributes ?? [];
+  final int timeUnixNano;
+  final int observedTimeUnixNano;
+  final Severity severity;
+  final String body;
+  final List<Attribute> attributes;
+  final int droppedAttributesCount;
+  final int flags;
+  final String? traceId;
+  final String? spanId;
+
+  final InstrumentationScope scope;
+  final Resource resource;
 
   Map<String, dynamic> toJson() => {
         'timeUnixNano': timeUnixNano.toString(),

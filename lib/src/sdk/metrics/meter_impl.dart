@@ -6,6 +6,12 @@ import 'metric_reader.dart';
 
 /// Implementation of the Meter interface.
 class MeterImpl implements Meter {
+
+  MeterImpl({
+    required this.scope,
+    required this.resource,
+    required this.reader,
+  });
   final InstrumentationScope scope;
   final Resource resource;
   final MetricReader reader;
@@ -14,12 +20,6 @@ class MeterImpl implements Meter {
   final Map<String, _HistogramImpl> _histograms = {};
   final Map<String, _ObservableGaugeImpl> _observableGauges = {};
   final Map<String, _ObservableCounterImpl> _observableCounters = {};
-
-  MeterImpl({
-    required this.scope,
-    required this.resource,
-    required this.reader,
-  });
 
   @override
   Counter createCounter(String name, {String? unit, String? description}) {
@@ -37,7 +37,7 @@ class MeterImpl implements Meter {
 
   @override
   UpDownCounter createUpDownCounter(String name,
-      {String? unit, String? description}) {
+      {String? unit, String? description,}) {
     final key = '${scope.name}:$name';
     return _upDownCounters.putIfAbsent(key, () {
       final counter = _UpDownCounterImpl(
@@ -110,17 +110,17 @@ class MeterImpl implements Meter {
 }
 
 class _CounterImpl implements Counter {
-  final String name;
-  final String? unit;
-  final String? description;
-  final Map<String, int> _valuesByAttributes = {};
-  int _startTimeUnixNano;
 
   _CounterImpl({
     required this.name,
     this.unit,
     this.description,
   }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+  final String name;
+  final String? unit;
+  final String? description;
+  final Map<String, int> _valuesByAttributes = {};
+  int _startTimeUnixNano;
 
   @override
   void add(int value, {Map<String, AttributeValue>? attributes}) {
@@ -201,17 +201,17 @@ class _CounterImpl implements Counter {
 }
 
 class _UpDownCounterImpl implements UpDownCounter {
-  final String name;
-  final String? unit;
-  final String? description;
-  final Map<String, int> _valuesByAttributes = {};
-  int _startTimeUnixNano;
 
   _UpDownCounterImpl({
     required this.name,
     this.unit,
     this.description,
   }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+  final String name;
+  final String? unit;
+  final String? description;
+  final Map<String, int> _valuesByAttributes = {};
+  int _startTimeUnixNano;
 
   @override
   void add(int value, {Map<String, AttributeValue>? attributes}) {
@@ -290,17 +290,17 @@ class _UpDownCounterImpl implements UpDownCounter {
 }
 
 class _HistogramImpl implements Histogram {
-  final String name;
-  final String? unit;
-  final String? description;
-  final Map<String, List<double>> _valuesByAttributes = {};
-  int _startTimeUnixNano;
 
   _HistogramImpl({
     required this.name,
     this.unit,
     this.description,
   }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+  final String name;
+  final String? unit;
+  final String? description;
+  final Map<String, List<double>> _valuesByAttributes = {};
+  int _startTimeUnixNano;
 
   @override
   void record(double value, {Map<String, AttributeValue>? attributes}) {
@@ -408,10 +408,6 @@ class _HistogramImpl implements Histogram {
 }
 
 class _ObservableGaugeImpl implements ObservableGauge {
-  final String name;
-  final double Function() callback;
-  final String? unit;
-  final String? description;
 
   _ObservableGaugeImpl({
     required this.name,
@@ -419,6 +415,10 @@ class _ObservableGaugeImpl implements ObservableGauge {
     this.unit,
     this.description,
   });
+  final String name;
+  final double Function() callback;
+  final String? unit;
+  final String? description;
 
   MetricData get _metricData {
     final now = DateTime.now();
@@ -441,11 +441,6 @@ class _ObservableGaugeImpl implements ObservableGauge {
 }
 
 class _ObservableCounterImpl implements ObservableCounter {
-  final String name;
-  final int Function() callback;
-  final String? unit;
-  final String? description;
-  int _startTimeUnixNano;
 
   _ObservableCounterImpl({
     required this.name,
@@ -453,6 +448,11 @@ class _ObservableCounterImpl implements ObservableCounter {
     this.unit,
     this.description,
   }) : _startTimeUnixNano = DateTime.now().microsecondsSinceEpoch * 1000;
+  final String name;
+  final int Function() callback;
+  final String? unit;
+  final String? description;
+  int _startTimeUnixNano;
 
   MetricData get _metricData {
     final now = DateTime.now();

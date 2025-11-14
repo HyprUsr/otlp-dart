@@ -25,8 +25,6 @@ extension StatusCodeExtension on StatusCode {
 
 /// Status represents the status of a finished Span.
 class SpanStatus {
-  final StatusCode code;
-  final String? message;
 
   const SpanStatus({
     required this.code,
@@ -37,6 +35,8 @@ class SpanStatus {
   const SpanStatus.ok() : this(code: StatusCode.ok);
   const SpanStatus.error([String? message])
       : this(code: StatusCode.error, message: message);
+  final StatusCode code;
+  final String? message;
 
   Map<String, dynamic> toJson() => {
         'code': code.toInt(),

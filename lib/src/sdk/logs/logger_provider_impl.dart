@@ -6,14 +6,14 @@ import 'logger_impl.dart';
 
 /// Implementation of LoggerProvider.
 class LoggerProviderImpl implements LoggerProvider {
-  final Resource resource;
-  final LogRecordProcessor processor;
-  final Map<String, Logger> _loggers = {};
 
   LoggerProviderImpl({
     required this.resource,
     required this.processor,
   });
+  final Resource resource;
+  final LogRecordProcessor processor;
+  final Map<String, Logger> _loggers = {};
 
   @override
   Logger getLogger(String name, {String? version}) {

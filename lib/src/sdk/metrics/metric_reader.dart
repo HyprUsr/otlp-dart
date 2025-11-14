@@ -13,13 +13,6 @@ abstract class MetricReader {
 
 /// Periodic metric reader that exports metrics on a schedule.
 class PeriodicMetricReader implements MetricReader {
-  final OtlpHttpMetricExporter exporter;
-  final Resource resource;
-  final InstrumentationScope scope;
-  final Duration interval;
-  final Map<String, MetricData Function()> _metricProducers = {};
-  Timer? _timer;
-  bool _shutdown = false;
 
   PeriodicMetricReader({
     required this.exporter,
@@ -29,6 +22,13 @@ class PeriodicMetricReader implements MetricReader {
   }) {
     _startTimer();
   }
+  final OtlpHttpMetricExporter exporter;
+  final Resource resource;
+  final InstrumentationScope scope;
+  final Duration interval;
+  final Map<String, MetricData Function()> _metricProducers = {};
+  Timer? _timer;
+  bool _shutdown = false;
 
   void _startTimer() {
     _timer = Timer.periodic(interval, (_) {
@@ -57,6 +57,7 @@ class PeriodicMetricReader implements MetricReader {
     try {
       await exporter.export(metrics, resource, scope);
     } catch (e) {
+      // ignore: avoid_print
       print('Error exporting metrics: $e');
     }
   }
