@@ -1,0 +1,7 @@
+# Ignore test files that are no longer used
+test_continuous_metrics.dart
+test_histogram_continuous.dart
+test_metric.dart
+
+# Ignore proto source files (only include generated .dart files)
+protos/

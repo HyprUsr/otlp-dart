@@ -1,5 +1,4 @@
 import '../../sdk/common/attribute.dart';
-import '../../sdk/resource/resource.dart';
 
 /// MetricData represents a single metric data point.
 abstract class MetricData {

@@ -2,7 +2,6 @@
 /// On web, HTTP/2 is handled automatically by the browser's fetch API.
 library;
 
-import 'dart:typed_data';
 import 'http2_stub.dart';
 
 /// Creates an HTTP/2 transport connection for web.

@@ -1,5 +1,4 @@
 import '../../sdk/common/attribute.dart';
-import 'span_kind.dart';
 import 'span_status.dart';
 
 /// Span represents a single operation within a trace.

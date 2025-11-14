@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../api/trace/span.dart';
 import '../api/trace/span_kind.dart';

@@ -5,14 +5,21 @@ OpenTelemetry Protocol (OTLP) client library for Dart. Export traces, metrics, a
 ## Features
 
 - ✅ **OTLP/HTTP support** - Send telemetry via HTTP with JSON encoding
+- ✅ **OTLP/HTTP2 with Protobuf** - High-performance binary encoding for Aspire
 - ✅ **Distributed Tracing** - Create spans, nested spans, and distributed traces
 - ✅ **Structured Logging** - Emit structured logs with attributes
-- ✅ **Metrics** - Export counters, gauges, and histograms
+- ✅ **Comprehensive Metrics** - Full SDK with all instrument types
+  - Counter (monotonically increasing)
+  - UpDownCounter (can increase or decrease)
+  - Histogram (value distributions with buckets)
+  - ObservableGauge (callback-based current values)
+  - ObservableCounter (callback-based cumulative values)
 - ✅ **Batch Processing** - Efficient batch export with configurable timing
 - ✅ **Resource Attributes** - Identify your service with rich metadata
 - ✅ **.NET Aspire Dashboard** - First-class support for Aspire
 - ✅ **Automatic Context Propagation** - Parent-child span relationships
 - ✅ **Exception Recording** - Automatic exception capture in spans
+- ✅ **Delta Temporality** - Efficient metric reporting with automatic reset
 
 ## Getting Started
 
@@ -211,6 +218,164 @@ final span2 = tracer.startSpan(
   links: [SpanLink(context: span1.context)],
 );
 span2.end();
+```
+
+### Metrics
+
+#### Setting up Metrics
+
+```dart
+// Create resource
+final resource = Resource(
+  attributes: [
+    Attribute('service.name', AttributeValue.string('my-service')),
+    Attribute('service.version', AttributeValue.string('1.0.0')),
+  ],
+);
+
+// Create exporter
+final exporter = OtlpHttpMetricExporter.aspire(
+  host: 'localhost',
+  port: 18889,
+);
+
+// Create metric reader with periodic export (every 60 seconds)
+final reader = PeriodicMetricReader(
+  exporter: exporter,
+  resource: resource,
+  scope: InstrumentationScope(name: 'my-app', version: '1.0.0'),
+  interval: const Duration(seconds: 60),
+);
+
+// Create meter provider
+final meterProvider = MeterProviderImpl(
+  resource: resource,
+  reader: reader,
+);
+
+// Get a meter
+final meter = meterProvider.getMeter('my-app');
+```
+
+#### Counter - Monotonically Increasing Values
+
+```dart
+final requestCounter = meter.createCounter(
+  'http.server.requests',
+  unit: 'requests',
+  description: 'Total number of HTTP requests',
+);
+
+// Increment counter with attributes
+requestCounter.add(1, attributes: {
+  'http.method': AttributeValue.string('GET'),
+  'http.route': AttributeValue.string('/api/users'),
+  'http.status_code': AttributeValue.int(200),
+});
+```
+
+#### UpDownCounter - Values That Can Increase or Decrease
+
+```dart
+final activeConnections = meter.createUpDownCounter(
+  'http.server.active_connections',
+  unit: 'connections',
+  description: 'Number of active HTTP connections',
+);
+
+// Connection opened
+activeConnections.add(1);
+
+// Connection closed
+activeConnections.add(-1);
+```
+
+#### Histogram - Value Distributions
+
+```dart
+final requestDuration = meter.createHistogram(
+  'http.server.duration',
+  unit: 'ms',
+  description: 'HTTP request duration',
+);
+
+// Record request duration
+requestDuration.record(42.5, attributes: {
+  'http.method': AttributeValue.string('GET'),
+  'http.route': AttributeValue.string('/api/users'),
+});
+
+// Histogram automatically calculates:
+// - Count of measurements
+// - Sum of all values
+// - Min and max values
+// - Distribution across bucket boundaries
+```
+
+#### ObservableGauge - Current Value via Callback
+
+```dart
+var memoryUsage = 0.0;
+
+final memoryGauge = meter.createObservableGauge(
+  'process.runtime.dart.memory',
+  () => memoryUsage,
+  unit: 'bytes',
+  description: 'Current memory usage',
+);
+
+// Update value as needed
+memoryUsage = 1024.0 * 1024.0; // 1 MB
+
+// Value is automatically reported during metric collection
+```
+
+#### ObservableCounter - Cumulative Value via Callback
+
+```dart
+var totalBytes = 0;
+
+final bytesCounter = meter.createObservableCounter(
+  'network.bytes.sent',
+  () => totalBytes,
+  unit: 'bytes',
+  description: 'Total bytes sent',
+);
+
+// Update cumulative value
+totalBytes += 1024;
+
+// Delta is automatically calculated during collection
+```
+
+#### Complete Metrics Example
+
+```dart
+// Create instruments
+final requestCounter = meter.createCounter('http.requests');
+final requestDuration = meter.createHistogram('http.duration', unit: 'ms');
+final activeConnections = meter.createUpDownCounter('http.connections');
+
+// Simulate HTTP request
+activeConnections.add(1); // Connection opened
+
+requestCounter.add(1, attributes: {
+  'method': AttributeValue.string('GET'),
+  'route': AttributeValue.string('/api/users'),
+});
+
+requestDuration.record(156.7, attributes: {
+  'method': AttributeValue.string('GET'),
+  'route': AttributeValue.string('/api/users'),
+});
+
+activeConnections.add(-1); // Connection closed
+
+// Force export
+await meterProvider.forceFlush();
+
+// Cleanup
+await meterProvider.shutdown();
 ```
 
 ### Logging
@@ -469,8 +634,16 @@ try {
 
 See the `/example` directory for complete examples:
 
-- `aspire_example.dart` - Complete .NET Aspire integration
-- More examples coming soon!
+- `aspire_example.dart` - Complete .NET Aspire integration with traces and logs
+- `metrics_example.dart` - Comprehensive metrics example with all instrument types
+- `http_client_example.dart` - HTTP client instrumentation example
+- `composable_http_client_example.dart` - Advanced composable HTTP client example
+
+Run examples:
+```bash
+dart run example/metrics_example.dart
+dart run example/aspire_example.dart
+```
 
 ## Contributing
 
