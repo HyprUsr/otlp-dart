@@ -21,6 +21,7 @@ export 'src/sdk/common/attribute.dart';
 export 'src/sdk/trace/tracer_provider_impl.dart';
 export 'src/sdk/trace/span_processor.dart';
 export 'src/sdk/trace/span_exporter.dart';
+export 'src/sdk/trace/recording_span.dart';
 export 'src/sdk/logs/logger_provider_impl.dart';
 export 'src/sdk/logs/log_processor.dart';
 export 'src/sdk/logs/log_exporter.dart';
