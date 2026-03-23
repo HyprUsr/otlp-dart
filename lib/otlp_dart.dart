@@ -10,6 +10,7 @@ export 'src/api/trace/span.dart';
 export 'src/api/trace/span_kind.dart';
 export 'src/api/trace/span_status.dart';
 export 'src/api/metrics/meter.dart';
+export 'src/sdk/metrics/metric_data.dart';
 export 'src/api/metrics/meter_provider.dart';
 export 'src/api/logs/logger.dart';
 export 'src/api/logs/logger_provider.dart';
